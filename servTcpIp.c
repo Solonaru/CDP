@@ -70,13 +70,13 @@ int main()
     }
     else
     {
-      if (0 != pthread_detach(&tids[i], NULL, thread_func, &client_socket))
+      if (0 != pthread_create(&tids[i], NULL, thread_func, &client_socket))
       {
         perror("[server] Failed to create thread!\n");
       }
       else
       {
-        pthread_join(tids[i], NULL);
+        pthread_detach(tids[i]);
 
         if (MAX_THREADS_COUNT - 1 <= i)
         {
@@ -113,8 +113,9 @@ void *thread_func(void *client_socket_ptr)
     printf("[server] Message successfully received...%s\n", msg_in);
 
     bzero(msg_out, 100);
-    strcat(msg_out, "Hello ");
-    strcat(msg_out, msg_in);
+	strcat(msg_out, "Hello ");
+	strcat(msg_out, msg_in);
+	strcat(msg_out, "How are you?");
 
     printf("[server] Sending back response...%s\n", msg_out);
 
@@ -125,11 +126,41 @@ void *thread_func(void *client_socket_ptr)
     }
     else
     {
-      printf("[server] Response successfully sent.\n");
-    }
+      printf("[server] Question successfully sent.\n");
+	  
+	  /* upon connection wait for the message */
+	  bzero(msg_in, 100);
+	  printf("[server] Waiting for response...\n");
+	  fflush(stdout);
 
-    close(client_socket);
+	  /* read the message */
+	  if (0 >= read(client_socket, msg_in, 100))
+	  {
+		perror("[server] Couldn't perform read.\n");
+		close(client_socket);
+	  }
+	  else
+	  {
+		printf("[server] Message successfully received...%s\n", msg_in);
+
+		bzero(msg_out, 100);
+		strcat(msg_out, "Nice to meet you!");
+
+		printf("[server] Sending back response...%s\n", msg_out);
+
+		/* write response */
+		if (0 >= write(client_socket, msg_out, 100))
+		{
+		  perror("[server] Couldn't perform write.\n");
+		}
+		else
+		{
+		  printf("[server] Response successfully sent.\n");
+		}
+      }
+	}
   }
-
+  
+  close(client_socket);
   pthread_exit(NULL);
 }
