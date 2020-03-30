@@ -56,9 +56,28 @@ int main(int argc, char *argv[])
   {
     perror("[client] Couldn't perform read.\n");
     return errno;
-  }
+  } else {
+	printf("[client] Received message: %s\n", msg_out);
+	
+	bzero(msg_out, 100);
+	printf("[client] Insert response: ");
+	fflush(stdout);
+	read(0, msg_out, 100);
 
-  printf("[client] Received message: %s\n", msg_out);
+	if (0 >= write(sd, msg_out, 100))
+	{
+		perror("[client] Couldn't perform write.\n");
+		return errno;
+	}
+
+	if (0 > read(sd, msg_out, 100))
+	{
+		perror("[client] Couldn't perform read.\n");
+		return errno;
+	}
+
+	printf("[client] Received message: %s\n", msg_out);
+  }
 
   close(sd);
 }
