@@ -30,7 +30,7 @@ public class TaskDAO {
 	}
 
 	public void updateTaskName(Long taskId, String taskName) {
-		jdbcTemplate.update("UPDATE TASK SET NAME = ? WHERE ID = ?", taskId, taskName);
+		jdbcTemplate.update("UPDATE TASK SET TASK_NAME = ? WHERE ID = ?", taskId, taskName);
 	}
 
 	public void deleteTaskById(Long taskId) {
